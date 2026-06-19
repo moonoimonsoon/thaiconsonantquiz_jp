@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>タイ語 子音字クラス クイズ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3ede1;
+    --ink:#23201a;
+    --paper:#fbf7ee;
+    --line:#d8cdb6;
+    --high:#c2410c;   /* 高子音字 */
+    --mid:#1d6b5a;    /* 中子音字 */
+    --low:#3b5ba9;    /* 低子音字 */
+    --gold:#b08642;
+    --ok:#2f7a4d;
+    --ng:#b23a3a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","ヒラギノ角ゴ ProN","Yu Gothic",sans-serif;
+    background:
+      radial-gradient(circle at 18% 12%, #ffffff55, transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+    padding:24px 16px 40px;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{width:100%;max-width:560px;}
+
+  header{text-align:center;margin-bottom:18px;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.32em;color:var(--gold);
+    text-transform:uppercase;font-weight:700;margin-bottom:6px;
+  }
+  h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:26px;font-weight:700;letter-spacing:.01em;
+  }
+  h1 .th{font-family:"Kanit",sans-serif;}
+
+  .scorebar{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:14px;padding:10px 16px;margin-bottom:18px;
+    font-size:14px;
+  }
+  .scorebar b{font-size:20px;}
+  .score-correct b{color:var(--ok);}
+  .score-q b{color:var(--ink);}
+  .streak{color:var(--gold);font-weight:700;}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:30px 22px 26px;
+    box-shadow:0 14px 30px -22px #6b5a3a;
+    text-align:center;
+  }
+  .prompt-label{font-size:13px;color:#8a7d63;margin-bottom:14px;letter-spacing:.08em;}
+  .glyph{
+    font-family:"Kanit",sans-serif;
+    font-size:120px;line-height:1;color:var(--ink);
+    margin:4px 0 6px;
+  }
+  .progress{
+    height:6px;background:#e7ddc8;border-radius:99px;overflow:hidden;
+    margin:18px 4px 4px;
+  }
+  .progress span{display:block;height:100%;background:var(--gold);width:0;transition:width .3s;}
+
+  .choices{display:grid;gap:12px;margin-top:22px;}
+  .choice{
+    border:2px solid var(--line);
+    background:#fff;
+    border-radius:16px;
+    padding:16px;
+    font-size:18px;font-weight:700;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:transform .08s, border-color .15s, background .15s;
+  }
+  .choice .dot{width:12px;height:12px;border-radius:99px;display:inline-block;}
+  .choice[data-k="high"] .dot{background:var(--high);}
+  .choice[data-k="mid"] .dot{background:var(--mid);}
+  .choice[data-k="low"] .dot{background:var(--low);}
+  .choice:active{transform:scale(.98);}
+  .choice.correct{border-color:var(--ok);background:#e7f4ea;}
+  .choice.wrong{border-color:var(--ng);background:#f7e7e7;}
+  .choice.dim{opacity:.45;}
+  .choices.locked .choice{pointer-events:none;}
+
+  .explain{
+    margin-top:20px;
+    border-top:1px dashed var(--line);
+    padding-top:18px;
+    text-align:left;
+    display:none;
+  }
+  .explain.show{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;}}
+  .verdict{font-size:17px;font-weight:800;margin-bottom:12px;text-align:center;}
+  .verdict.ok{color:var(--ok);}
+  .verdict.ng{color:var(--ng);}
+  .ex-row{display:flex;gap:14px;align-items:baseline;margin-bottom:8px;font-size:15px;}
+  .ex-row .lbl{flex:0 0 92px;color:#8a7d63;font-size:13px;}
+  .ex-row .val{font-weight:600;}
+  .tag{display:inline-block;padding:3px 12px;border-radius:99px;color:#fff;font-size:14px;font-weight:700;}
+  .tag.high{background:var(--high);}
+  .tag.mid{background:var(--mid);}
+  .tag.low{background:var(--low);}
+  .th-inline{font-family:"Kanit",sans-serif;}
+
+  .next{
+    margin-top:18px;width:100%;
+    background:var(--ink);color:var(--paper);
+    border:none;border-radius:16px;padding:16px;
+    font-size:17px;font-weight:700;cursor:pointer;
+    display:none;
+  }
+  .next.show{display:block;}
+  .next:active{transform:scale(.99);}
+
+  /* 結果画面 */
+  .result{display:none;text-align:center;}
+  .result.show{display:block;}
+  .result .big{font-family:Georgia,serif;font-size:56px;font-weight:700;color:var(--gold);margin:10px 0;}
+  .result p{font-size:16px;color:#6b5f48;margin-bottom:6px;}
+  .restart{
+    margin-top:24px;background:var(--ink);color:var(--paper);
+    border:none;border-radius:16px;padding:16px 28px;font-size:17px;font-weight:700;cursor:pointer;
+  }
+  .legend{
+    display:flex;justify-content:center;gap:18px;margin-top:16px;font-size:12px;color:#8a7d63;
+  }
+  .legend i{width:10px;height:10px;border-radius:99px;display:inline-block;margin-right:5px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Thai Consonant Class</div>
+    <h1>タイ語 <span class="th">อักษร</span> クラス当て</h1>
+  </header>
+
+  <div class="scorebar">
+    <span class="score-q">問題 <b id="qnum">1</b>/<span id="qtotal">20</span></span>
+    <span class="streak" id="streak">🔥 0</span>
+    <span class="score-correct">正解 <b id="correct">0</b></span>
+  </div>
+
+  <div class="card" id="quizCard">
+    <div class="prompt-label">この子音字のクラスは？</div>
+    <div class="glyph" id="glyph">ก</div>
+    <div class="choices" id="choices">
+      <div class="choice" data-k="high"><span class="dot"></span>高子音字</div>
+      <div class="choice" data-k="mid"><span class="dot"></span>中子音字</div>
+      <div class="choice" data-k="low"><span class="dot"></span>低子音字</div>
+    </div>
+
+    <div class="explain" id="explain"></div>
+    <button class="next" id="nextBtn">次の問題 →</button>
+
+    <div class="progress"><span id="progbar"></span></div>
+  </div>
+
+  <div class="card result" id="result">
+    <div class="prompt-label">結果</div>
+    <div class="big" id="finalScore">0 / 20</div>
+    <p id="finalMsg"></p>
+    <div class="legend">
+      <span><i style="background:var(--high)"></i>高</span>
+      <span><i style="background:var(--mid)"></i>中</span>
+      <span><i style="background:var(--low)"></i>低</span>
+    </div>
+    <button class="restart" id="restartBtn">もう一度</button>
+  </div>
+</div>
+
+<script>
+// タイ語子音字44文字。class: high(高) / mid(中) / low(低)
+// name: 文字の呼び名(タイ語)、read: 名前の読み、init: 頭子音音、memo: ひとことメモ
+const CONSONANTS = [
+  {ch:"ก", cls:"mid",  name:"กอ ไก่",    read:"gɔɔ gài",    init:"g",  memo:"鶏（ガイ）"},
+  {ch:"ข", cls:"high", name:"ขอ ไข่",    read:"khɔ̆ɔ khài",  init:"kh", memo:"卵（カイ）"},
+  {ch:"ฃ", cls:"high", name:"ฃอ ฃวด",   read:"khɔ̆ɔ khùat", init:"kh", memo:"瓶（廃字）"},
+  {ch:"ค", cls:"low",  name:"คอ ควาย",   read:"khɔɔ khwaai", init:"kh", memo:"水牛"},
+  {ch:"ฅ", cls:"low",  name:"ฅอ คน",     read:"khɔɔ khon",   init:"kh", memo:"人（廃字）"},
+  {ch:"ฆ", cls:"low",  name:"ฆอ ระฆัง",  read:"khɔɔ rá-khang",init:"kh",memo:"鐘"},
+  {ch:"ง", cls:"low",  name:"งอ งู",     read:"ngɔɔ nguu",   init:"ng", memo:"蛇"},
+  {ch:"จ", cls:"mid",  name:"จอ จาน",    read:"jɔɔ jaan",    init:"j",  memo:"皿"},
+  {ch:"ฉ", cls:"high", name:"ฉอ ฉิ่ง",   read:"chɔ̆ɔ chìng",  init:"ch", memo:"シンバル"},
+  {ch:"ช", cls:"low",  name:"ชอ ช้าง",   read:"chɔɔ cháang", init:"ch", memo:"象"},
+  {ch:"ซ", cls:"low",  name:"ซอ โซ่",    read:"sɔɔ sôo",     init:"s",  memo:"鎖"},
+  {ch:"ฌ", cls:"low",  name:"ฌอ เฌอ",   read:"chɔɔ chəə",   init:"ch", memo:"木"},
+  {ch:"ญ", cls:"low",  name:"ญอ หญิง",   read:"yɔɔ yĭng",    init:"y",  memo:"女性"},
+  {ch:"ฎ", cls:"mid",  name:"ฎอ ชฎา",    read:"dɔɔ chá-daa", init:"d",  memo:"冠"},
+  {ch:"ฏ", cls:"mid",  name:"ฏอ ปฏัก",   read:"dtɔɔ bpà-dtàk",init:"dt",memo:"槍"},
+  {ch:"ฐ", cls:"high", name:"ฐอ ฐาน",    read:"thɔ̆ɔ thăan",  init:"th", memo:"台座"},
+  {ch:"ฑ", cls:"low",  name:"ฑอ มณโฑ",   read:"thɔɔ mon-thoo",init:"th",memo:"モントー"},
+  {ch:"ฒ", cls:"low",  name:"ฒอ ผู้เฒ่า",read:"thɔɔ phûu-thâo",init:"th",memo:"老人"},
+  {ch:"ณ", cls:"low",  name:"ณอ เณร",    read:"nɔɔ neen",    init:"n",  memo:"小坊主"},
+  {ch:"ด", cls:"mid",  name:"ดอ เด็ก",   read:"dɔɔ dèk",     init:"d",  memo:"子供"},
+  {ch:"ต", cls:"mid",  name:"ตอ เต่า",   read:"dtɔɔ dtào",   init:"dt", memo:"亀"},
+  {ch:"ถ", cls:"high", name:"ถอ ถุง",    read:"thɔ̆ɔ thŭng",  init:"th", memo:"袋"},
+  {ch:"ท", cls:"low",  name:"ทอ ทหาร",   read:"thɔɔ thá-hăan",init:"th",memo:"兵士"},
+  {ch:"ธ", cls:"low",  name:"ธอ ธง",     read:"thɔɔ thong",  init:"th", memo:"旗"},
+  {ch:"น", cls:"low",  name:"นอ หนู",    read:"nɔɔ nŭu",     init:"n",  memo:"ネズミ"},
+  {ch:"บ", cls:"mid",  name:"บอ ใบไม้",  read:"bɔɔ bai-máai",init:"b",  memo:"葉"},
+  {ch:"ป", cls:"mid",  name:"ปอ ปลา",    read:"bpɔɔ bplaa",  init:"bp", memo:"魚"},
+  {ch:"ผ", cls:"high", name:"ผอ ผึ้ง",   read:"phɔ̆ɔ phʉ̂ng",  init:"ph", memo:"蜂"},
+  {ch:"ฝ", cls:"high", name:"ฝอ ฝา",     read:"fɔ̆ɔ făa",     init:"f",  memo:"蓋"},
+  {ch:"พ", cls:"low",  name:"พอ พาน",    read:"phɔɔ phaan",  init:"ph", memo:"盆"},
+  {ch:"ฟ", cls:"low",  name:"ฟอ ฟัน",    read:"fɔɔ fan",     init:"f",  memo:"歯"},
+  {ch:"ภ", cls:"low",  name:"ภอ สำเภา",  read:"phɔɔ săm-phao",init:"ph",memo:"帆船"},
+  {ch:"ม", cls:"low",  name:"มอ ม้า",    read:"mɔɔ máa",     init:"m",  memo:"馬"},
+  {ch:"ย", cls:"low",  name:"ยอ ยักษ์",  read:"yɔɔ yák",     init:"y",  memo:"鬼（ヤック）"},
+  {ch:"ร", cls:"low",  name:"รอ เรือ",   read:"rɔɔ rʉa",     init:"r",  memo:"船"},
+  {ch:"ล", cls:"low",  name:"ลอ ลิง",    read:"lɔɔ ling",    init:"l",  memo:"猿"},
+  {ch:"ว", cls:"low",  name:"วอ แหวน",   read:"wɔɔ wɛ̆ɛn",    init:"w",  memo:"指輪"},
+  {ch:"ศ", cls:"high", name:"ศอ ศาลา",   read:"sɔ̆ɔ săa-laa", init:"s",  memo:"あずまや"},
+  {ch:"ษ", cls:"high", name:"ษอ ฤๅษี",   read:"sɔ̆ɔ rʉʉ-sĭi", init:"s",  memo:"仙人"},
+  {ch:"ส", cls:"high", name:"สอ เสือ",   read:"sɔ̆ɔ sʉ̆a",     init:"s",  memo:"虎"},
+  {ch:"ห", cls:"high", name:"หอ หีบ",    read:"hɔ̆ɔ hìip",    init:"h",  memo:"箱"},
+  {ch:"ฬ", cls:"low",  name:"ฬอ จุฬา",   read:"lɔɔ jù-laa",  init:"l",  memo:"凧"},
+  {ch:"อ", cls:"mid",  name:"ออ อ่าง",   read:"ʔɔɔ àang",    init:"ʔ",  memo:"洗面器"},
+  {ch:"ฮ", cls:"low",  name:"ฮอ นกฮูก",  read:"hɔɔ nók-hûuk",init:"h",  memo:"フクロウ"}
+];
+
+const CLASS_JP = {high:"高子音字", mid:"中子音字", low:"低子音字"};
+const CLASS_MEMO = {
+  high:"高子音字は 11 文字。อักษรสูง（アクソーン・スーン）。",
+  mid:"中子音字は 9 文字。อักษรกลาง（アクソーン・グラーン）。",
+  low:"低子音字は 24 文字で最多。อักษรต่ำ（アクソーン・タム）。"
+};
+const TOTAL = 20;
+
+let deck=[], idx=0, correct=0, streak=0, locked=false;
+
+const $ = id => document.getElementById(id);
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function start(){
+  deck = shuffle(CONSONANTS).slice(0,TOTAL);
+  idx=0;correct=0;streak=0;
+  $("qtotal").textContent=TOTAL;
+  $("result").classList.remove("show");
+  $("quizCard").style.display="";
+  render();
+}
+
+function render(){
+  locked=false;
+  const item=deck[idx];
+  $("glyph").textContent=item.ch;
+  $("qnum").textContent=idx+1;
+  $("correct").textContent=correct;
+  $("streak").textContent="🔥 "+streak;
+  $("progbar").style.width=((idx)/TOTAL*100)+"%";
+
+  const ch=$("choices");
+  ch.classList.remove("locked");
+  [...ch.children].forEach(c=>{c.className="choice";c.dataset.k=c.dataset.k;
+    // dotを復元
+    if(!c.querySelector(".dot")){const d=document.createElement("span");d.className="dot";c.prepend(d);}
+  });
+  $("explain").className="explain";
+  $("explain").innerHTML="";
+  $("nextBtn").className="next";
+}
+
+function choose(k, el){
+  if(locked) return;
+  locked=true;
+  const item=deck[idx];
+  const right = item.cls;
+  const ok = k===right;
+  if(ok){correct++;streak++;}else{streak=0;}
+
+  const ch=$("choices");
+  ch.classList.add("locked");
+  [...ch.children].forEach(c=>{
+    if(c.dataset.k===right) c.classList.add("correct");
+    else if(c===el) c.classList.add("wrong");
+    else c.classList.add("dim");
+  });
+
+  const ex=$("explain");
+  ex.innerHTML=`
+    <div class="verdict ${ok?'ok':'ng'}">${ok?'⭕ 正解！':'❌ 不正解'}</div>
+    <div class="ex-row"><span class="lbl">文字</span><span class="val th-inline" style="font-size:24px">${item.ch}</span></div>
+    <div class="ex-row"><span class="lbl">クラス</span><span class="val"><span class="tag ${item.cls}">${CLASS_JP[item.cls]}</span></span></div>
+    <div class="ex-row"><span class="lbl">呼び名</span><span class="val th-inline">${item.name}</span></div>
+    <div class="ex-row"><span class="lbl">読み方</span><span class="val">${item.read}</span></div>
+    <div class="ex-row"><span class="lbl">意味</span><span class="val">${item.memo}</span></div>
+    <div class="ex-row"><span class="lbl">頭子音</span><span class="val">${item.init}</span></div>
+    <div class="ex-row"><span class="lbl">メモ</span><span class="val" style="font-weight:400;color:#6b5f48">${CLASS_MEMO[item.cls]}</span></div>
+  `;
+  ex.classList.add("show");
+  $("correct").textContent=correct;
+  $("streak").textContent="🔥 "+streak;
+  $("nextBtn").classList.add("show");
+}
+
+function next(){
+  idx++;
+  if(idx>=TOTAL){ finish(); return; }
+  render();
+}
+
+function finish(){
+  $("quizCard").style.display="none";
+  $("result").classList.add("show");
+  $("finalScore").textContent=`${correct} / ${TOTAL}`;
+  const pct=correct/TOTAL;
+  let msg;
+  if(pct===1) msg="完璧！เก่งมาก（ゲン・マーク＝すごい）！";
+  else if(pct>=0.8) msg="お見事。かなり身についています。";
+  else if(pct>=0.6) msg="いい調子。あと少しで定着します。";
+  else if(pct>=0.4) msg="高11・中9・低24をもう一度おさらいしましょう。";
+  else msg="まずは中子音字9文字から覚えるのがおすすめです。";
+  $("finalMsg").textContent=msg;
+}
+
+$("choices").addEventListener("click",e=>{
+  const c=e.target.closest(".choice");
+  if(c) choose(c.dataset.k,c);
+});
+$("nextBtn").addEventListener("click",next);
+$("restartBtn").addEventListener("click",start);
+
+start();
+</script>
+</body>
+</html>
