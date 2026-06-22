@@ -2,195 +2,527 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>タイ語子音字クラス判定クイズ (Loopless Font Challenge)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイ語子音字クラス — Moonoi Monsoon</title>
+<meta name="description" content="ループレス書体でタイ語の子音字クラスを覚える。Moonoi Monsoon制作。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f3ede1;
-    --ink:#23201a;
-    --paper:#fbf7ee;
-    --line:#d8cdb6;
-    --high:#c2410c;   /* 高子音字 */
-    --mid:#1d6b5a;    /* 中子音字 */
-    --low:#3b5ba9;    /* 低子音字 */
-    --gold:#b08642;
-    --ok:#2f7a4d;
-    --ng:#b23a3a;
+    --lime:#9FD92A;
+    --lime-hi:#cdeb5f;
+    --lime-lo:#7cb518;
+    --olive:#17220a;
+    --olive-2:#1c2908;
+    --olive-card:#162005;
+    --cream:#eef6d4;
+    --cream-dim:#b9c98e;
+    --ring:rgba(159,217,42,.5);
+    --good:#9FD92A;
+    --bad:#e0533a;
+    --bad-hi:#ff6a4d;
+    /* class accent colors */
+    --high:#ff8a5c;   /* High class  */
+    --mid:#5ad1b0;    /* Middle class */
+    --low:#6ea8ff;    /* Low class   */
   }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth;background:#0a0f04}
   body{
-    font-family:"Hiragino Kaku Gothic ProN","ヒラギノ角ゴ ProN","Yu Gothic",sans-serif;
+    font-family:'Prompt','Hiragino Kaku Gothic ProN','ヒラギノ角ゴ ProN','Yu Gothic',system-ui,sans-serif;
     background:
-      radial-gradient(circle at 18% 12%, #ffffff55, transparent 40%),
-      var(--bg);
-    color:var(--ink);
-    min-height:100%;
-    display:flex;
-    justify-content:center;
-    padding:24px 16px 40px;
-    -webkit-text-size-adjust:100%;
+      radial-gradient(120% 80% at 50% -10%, rgba(170,210,80,.07) 0%, transparent 42%),
+      radial-gradient(70% 50% at 22% 8%, rgba(159,217,42,.05) 0%, transparent 55%),
+      radial-gradient(60% 45% at 82% 4%, rgba(159,217,42,.035) 0%, transparent 55%),
+      linear-gradient(180deg, #17220a 0%, #131c08 38%, #0d1406 78%, #0a0f04 100%);
+    background-color:#0a0f04;
+    color:var(--cream);
+    min-height:100dvh;
+    overflow-x:hidden;
   }
-  .wrap{width:100%;max-width:560px;}
+  body::after{
+    content:"";position:fixed;left:50%;bottom:-8%;transform:translateX(-50%);
+    width:120%;height:42%;pointer-events:none;z-index:0;
+    background:radial-gradient(60% 100% at 50% 100%, rgba(255,138,38,.10) 0%, rgba(255,96,30,.05) 40%, transparent 72%);
+    mix-blend-mode:screen;
+    animation:forgeBreathe 7s ease-in-out infinite;
+  }
+  @keyframes forgeBreathe{0%,100%{opacity:.55}50%{opacity:.9}}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:repeating-linear-gradient(0deg,rgba(159,217,42,.022) 0 2px,transparent 2px 4px);
+    mix-blend-mode:screen;opacity:.5;
+  }
+  .embers{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .ember{
+    position:absolute;bottom:-12px;width:3px;height:3px;border-radius:50%;
+    background:#ffb347;box-shadow:0 0 6px 1px rgba(255,150,50,.7);
+    opacity:0;animation:rise linear infinite;
+  }
+  .ember.spark{width:2px;height:2px;background:#ffe08a;box-shadow:0 0 7px 2px rgba(255,210,120,.8);}
+  @keyframes rise{
+    0%{transform:translateY(0) translateX(0) scale(1);opacity:0}
+    8%{opacity:.9}70%{opacity:.7}
+    100%{transform:translateY(-104vh) translateX(var(--drift,14px)) scale(.5);opacity:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    body::after{animation:none;opacity:.6}
+    .embers{display:none}
+  }
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:32px 20px 60px}
 
-  header{text-align:center;margin-bottom:18px;}
-  .eyebrow{
-    font-size:12px;letter-spacing:.32em;color:var(--gold);
-    text-transform:uppercase;font-weight:700;margin-bottom:6px;
-  }
-  h1{
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:26px;font-weight:700;letter-spacing:.01em;
-  }
-  h1 .th{font-family:"Kanit",sans-serif;}
+  .px{font-family:'Silkscreen',monospace}
 
-  .scorebar{
-    display:flex;justify-content:space-between;align-items:center;
-    background:var(--paper);border:1px solid var(--line);
-    border-radius:14px;padding:10px 16px;margin-bottom:18px;
-    font-size:14px;
+  /* ===== Hero / brand ===== */
+  .brand{text-align:center;margin-bottom:8px}
+  .brand .mark{
+    width:72px;height:72px;margin:0 auto 14px;border-radius:20px;
+    background:var(--olive-2);display:grid;place-items:center;
+    box-shadow:0 0 0 1px rgba(159,217,42,.18), 0 12px 30px rgba(0,0,0,.45);
   }
-  .scorebar b{font-size:20px;}
-  .score-correct b{color:var(--ok);}
-  .score-q b{color:var(--ink);}
-  .streak{color:var(--gold);font-weight:700;}
+  .brand .mark svg{width:44px;height:44px}
+  .brand-name{
+    font-family:'Silkscreen',monospace;font-weight:700;
+    font-size:13px;letter-spacing:.14em;color:var(--lime);opacity:.85;
+    text-transform:uppercase;
+  }
+  .title{
+    font-family:'Silkscreen',monospace;font-weight:700;
+    font-size:clamp(20px,5.8vw,30px);line-height:1.15;color:var(--lime-hi);
+    text-shadow:0 0 18px rgba(159,217,42,.35);
+    text-align:center;margin:14px 0 4px;
+  }
+  .subtitle{
+    text-align:center;color:var(--cream-dim);font-weight:300;font-size:14px;
+    line-height:1.55;max-width:34ch;margin:6px auto 0;
+  }
 
-  .card{
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:22px;
-    padding:30px 22px 26px;
-    box-shadow:0 14px 30px -22px #6b5a3a;
-    text-align:center;
+  .px-rule{display:flex;gap:5px;justify-content:center;margin:26px 0}
+  .px-rule i{width:7px;height:7px;background:var(--lime);opacity:.85;border-radius:1px}
+  .px-rule i:nth-child(even){background:var(--lime-lo);opacity:.6}
+
+  .quest-label{
+    text-align:center;font-family:'Silkscreen',monospace;
+    font-size:11px;letter-spacing:.1em;color:var(--lime);
+    text-transform:uppercase;margin:0 0 16px;opacity:.92;
   }
-  .prompt-label{font-size:13px;color:#8a7d63;margin-bottom:14px;letter-spacing:.08em;}
+
+  /* ===== Start menu (DQ-style) ===== */
+  .menu-card{
+    background:linear-gradient(180deg,var(--olive-2),var(--olive-card));
+    border:1px solid rgba(159,217,42,.18);
+    border-radius:18px;padding:22px 20px;margin-bottom:16px;
+  }
+  .menu-label{
+    font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--lime);opacity:.9;
+    text-align:center;margin-bottom:16px;
+  }
+  .opt-row{display:flex;flex-direction:column;gap:10px}
+  .opt{
+    display:flex;align-items:center;gap:12px;
+    font-family:'Silkscreen',monospace;font-size:13px;letter-spacing:.04em;
+    color:var(--cream-dim);background:rgba(0,0,0,.22);
+    border:1px solid rgba(159,217,42,.14);border-radius:12px;
+    padding:14px 16px;cursor:pointer;text-align:left;width:100%;
+    transition:background .14s,color .14s,border-color .14s,transform .1s;
+  }
+  .opt .cursor{
+    width:14px;flex:0 0 auto;color:var(--lime);opacity:0;
+    transition:opacity .12s;font-size:14px;
+  }
+  .opt .opt-main{flex:1 1 auto;min-width:0}
+  .opt .opt-name{display:block}
+  .opt .opt-desc{
+    font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:300;font-size:11px;
+    letter-spacing:0;color:var(--cream-dim);opacity:.7;margin-top:4px;
+    text-transform:none;line-height:1.4;
+  }
+  .opt:hover{color:var(--cream);border-color:rgba(159,217,42,.3)}
+  .opt:hover .cursor{opacity:1}
+  .opt[aria-pressed="true"]{
+    background:var(--lime);color:var(--olive);border-color:var(--lime);
+    box-shadow:0 4px 14px rgba(159,217,42,.28);
+  }
+  .opt[aria-pressed="true"] .cursor{opacity:1;color:var(--olive)}
+  .opt[aria-pressed="true"] .opt-desc{color:var(--olive);opacity:.75}
+  .opt:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+
+  .start-btn{
+    display:block;width:100%;
+    font-family:'Silkscreen',monospace;font-size:15px;letter-spacing:.08em;
+    color:var(--olive);background:var(--lime);border:none;border-radius:14px;
+    padding:18px;cursor:pointer;margin-top:4px;
+    box-shadow:0 6px 20px rgba(159,217,42,.3);
+    transition:background .14s,transform .1s,box-shadow .14s;
+  }
+  .start-btn:hover{background:var(--lime-hi);transform:translateY(-2px);box-shadow:0 10px 26px rgba(159,217,42,.38)}
+  .start-btn:active{transform:translateY(0)}
+  .start-btn:focus-visible{outline:3px solid var(--ring);outline-offset:3px}
+  .lvl-in-btn{color:var(--olive);font-size:15px;letter-spacing:.08em;vertical-align:baseline}
+
+  /* ===== Game screen ===== */
+  .hidden{display:none!important}
+
+  .game-header{
+    display:flex;align-items:center;gap:8px;margin-bottom:16px;
+    padding-bottom:12px;border-bottom:1px solid rgba(159,217,42,.12);
+  }
+  .hdr-mark{width:22px;height:22px;flex:0 0 auto}
+  .hdr-name{
+    font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:.06em;
+    color:var(--lime);opacity:.9;
+  }
+  .hdr-mode{
+    margin-left:auto;font-size:9px;letter-spacing:.1em;
+    color:var(--olive);background:var(--lime);border-radius:6px;
+    padding:4px 9px;text-transform:uppercase;font-family:'Silkscreen',monospace;
+  }
+
+  .statbar{display:flex;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .stat{
+    flex:1;text-align:center;background:rgba(0,0,0,.25);
+    border:1px solid rgba(159,217,42,.12);border-radius:11px;padding:9px 4px;
+  }
+  .stat .k{font-family:'Silkscreen',monospace;font-size:8px;letter-spacing:.1em;color:var(--cream-dim);text-transform:uppercase}
+  .stat .v{font-family:'Silkscreen',monospace;font-size:16px;color:var(--lime-hi);margin-top:3px}
+
+  .progress{height:6px;background:rgba(0,0,0,.3);border-radius:99px;overflow:hidden;margin-bottom:20px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--lime-lo),var(--lime));width:0;transition:width .3s ease}
+
+  .qcard{
+    background:linear-gradient(180deg,var(--olive-2),var(--olive-card));
+    border:1px solid rgba(159,217,42,.16);border-radius:20px;
+    padding:24px 22px 30px;text-align:center;margin-bottom:18px;
+    min-height:200px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .q-mode-tag{
+    font-family:'Silkscreen',monospace;font-size:9px;letter-spacing:.1em;
+    color:var(--cream-dim);text-transform:uppercase;opacity:.7;margin-bottom:14px;
+  }
   .glyph{
-    font-family:"Kanit",sans-serif;
-    font-size:120px;line-height:1;color:var(--ink);
-    margin:4px 0 6px;
+    font-family:'Sarabun',sans-serif;font-weight:500;
+    color:var(--cream);line-height:1;
+    font-size:clamp(96px,30vw,140px);
+    text-shadow:0 0 26px rgba(159,217,42,.18);
   }
-  .progress{
-    height:6px;background:#e7ddc8;border-radius:99px;overflow:hidden;
-    margin:18px 4px 4px;
-  }
-  .progress span{display:block;height:100%;background:var(--gold);width:0;transition:width .3s;}
 
-  .choices{display:grid;gap:12px;margin-top:22px;}
+  /* choice buttons */
+  .choices{display:grid;gap:12px;margin-bottom:16px}
   .choice{
-    border:2px solid var(--line);
-    background:#fff;
-    border-radius:16px;
-    padding:16px;
-    font-size:18px;font-weight:700;
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    transition:transform .08s, border-color .15s, background .15s;
+    font-family:'Sarabun',sans-serif;font-weight:600;font-size:18px;
+    color:var(--cream);background:linear-gradient(180deg,var(--olive-2),var(--olive-card));
+    border:1px solid rgba(159,217,42,.16);border-radius:14px;
+    padding:16px 14px;cursor:pointer;
+    transition:transform .1s,border-color .14s,background .14s,box-shadow .14s;
+    display:flex;align-items:center;justify-content:center;gap:11px;
   }
-  .choice .dot{width:12px;height:12px;border-radius:99px;display:inline-block;}
-  .choice[data-k="high"] .dot{background:var(--high);}
-  .choice[data-k="mid"] .dot{background:var(--mid);}
-  .choice[data-k="low"] .dot{background:var(--low);}
-  .choice:active{transform:scale(.98);}
-  .choice.correct{border-color:var(--ok);background:#e7f4ea;}
-  .choice.wrong{border-color:var(--ng);background:#f7e7e7;}
-  .choice.dim{opacity:.45;}
-  .choices.locked .choice{pointer-events:none;}
+  .choice .dot{width:12px;height:12px;border-radius:99px;flex:0 0 auto;display:inline-block}
+  .choice[data-k="high"] .dot{background:var(--high)}
+  .choice[data-k="mid"] .dot{background:var(--mid)}
+  .choice[data-k="low"] .dot{background:var(--low)}
+  .choice:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ring);box-shadow:0 8px 20px rgba(0,0,0,.35)}
+  .choice:active:not(:disabled){transform:translateY(0)}
+  .choice:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+  .choice:disabled{cursor:default}
+  .choice.correct{
+    background:linear-gradient(180deg,rgba(159,217,42,.25),rgba(159,217,42,.12));
+    border-color:var(--good);color:var(--cream);
+    box-shadow:0 0 0 1px var(--good),0 0 18px rgba(159,217,42,.3);
+  }
+  .choice.wrong{
+    background:linear-gradient(180deg,rgba(224,83,58,.22),rgba(224,83,58,.1));
+    border-color:var(--bad);color:var(--cream);
+  }
+  .choice.dim{opacity:.4}
 
-  .explain{
-    margin-top:20px;
-    border-top:1px dashed var(--line);
-    padding-top:18px;
-    text-align:left;
-    display:none;
+  /* feedback panel */
+  .feedback{
+    background:rgba(0,0,0,.26);border:1px solid rgba(159,217,42,.14);
+    border-radius:16px;padding:18px;margin-bottom:16px;
+    font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
   }
-  .explain.show{display:block;animation:fade .25s ease;}
-  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;}}
-  .verdict{font-size:17px;font-weight:800;margin-bottom:12px;text-align:center;}
-  .verdict.ok{color:var(--ok);}
-  .verdict.ng{color:var(--ng);}
-  .ex-row{display:flex;gap:14px;align-items:baseline;margin-bottom:8px;font-size:15px;}
-  .ex-row .lbl{flex:0 0 92px;color:#8a7d63;font-size:13px;}
-  .ex-row .val{font-weight:600;}
-  .tag{display:inline-block;padding:3px 12px;border-radius:99px;color:#fff;font-size:14px;font-weight:700;}
-  .tag.high{background:var(--high);}
-  .tag.mid{background:var(--mid);}
-  .tag.low{background:var(--low);}
-  .th-inline{font-family:"Kanit",sans-serif;}
+  .fb-head{
+    font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;margin-bottom:12px;text-align:center;
+  }
+  .fb-head.ok{color:var(--lime)}
+  .fb-head.no{color:var(--bad-hi)}
+  .fb-row{
+    display:flex;align-items:baseline;gap:10px;font-size:14px;
+    color:var(--cream);line-height:1.5;font-weight:300;margin-bottom:6px;
+  }
+  .fb-row .lbl{
+    font-family:'Silkscreen',monospace;font-size:8px;letter-spacing:.06em;
+    color:var(--cream-dim);text-transform:uppercase;flex:0 0 70px;
+  }
+  .fb-row .val{flex:1}
+  .fb-row .val .th{font-family:'Sarabun',sans-serif;font-weight:600;color:var(--cream)}
+  .fb-row .val .glyph-sm{font-family:'Sarabun',sans-serif;font-weight:500;color:var(--lime-hi);font-size:26px}
+  .tag{display:inline-block;padding:4px 14px;border-radius:99px;color:var(--olive);font-size:13px;font-weight:700;font-family:'Sarabun',sans-serif}
+  .tag.high{background:var(--high)}
+  .tag.mid{background:var(--mid)}
+  .tag.low{background:var(--low)}
+  .fb-note{
+    margin-top:12px;padding-top:12px;border-top:1px solid rgba(159,217,42,.12);
+    font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:300;font-size:12.5px;
+    color:var(--cream-dim);line-height:1.5;
+  }
 
-  .next{
-    margin-top:18px;width:100%;
-    background:var(--ink);color:var(--paper);
-    border:none;border-radius:16px;padding:16px;
-    font-size:17px;font-weight:700;cursor:pointer;
-    display:none;
+  .next-btn{
+    display:block;width:100%;
+    font-family:'Silkscreen',monospace;font-size:13px;letter-spacing:.06em;
+    color:var(--olive);background:var(--lime);border:none;border-radius:13px;
+    padding:16px;cursor:pointer;
+    box-shadow:0 5px 16px rgba(159,217,42,.28);
+    transition:background .14s,transform .1s;
   }
-  .next.show{display:block;}
-  .next:active{transform:scale(.99);}
+  .next-btn:hover{background:var(--lime-hi);transform:translateY(-2px)}
+  .next-btn:active{transform:translateY(0)}
+  .next-btn:focus-visible{outline:3px solid var(--ring);outline-offset:3px}
 
-  /* 結果画面 */
-  .result{display:none;text-align:center;}
-  .result.show{display:block;}
-  .result .big{font-family:Georgia,serif;font-size:56px;font-weight:700;color:var(--gold);margin:10px 0;}
-  .result p{font-size:16px;color:#6b5f48;margin-bottom:6px;}
-  .restart{
-    margin-top:24px;background:var(--ink);color:var(--paper);
-    border:none;border-radius:16px;padding:16px 28px;font-size:17px;font-weight:700;cursor:pointer;
+  .quit-link{
+    display:block;text-align:center;margin-top:16px;
+    font-family:'Silkscreen',monospace;font-size:9px;letter-spacing:.08em;
+    color:var(--cream-dim);text-transform:uppercase;
+    background:none;border:none;cursor:pointer;opacity:.7;width:100%;padding:6px;
   }
-  .legend{
-    display:flex;justify-content:center;gap:18px;margin-top:16px;font-size:12px;color:#8a7d63;
+  .quit-link:hover{opacity:1;color:var(--cream)}
+
+  /* ===== Results ===== */
+  .result-card{
+    background:linear-gradient(180deg,var(--olive-2),var(--olive-card));
+    border:1px solid rgba(159,217,42,.18);border-radius:22px;
+    padding:30px 24px;text-align:center;
   }
-  .legend i{width:10px;height:10px;border-radius:99px;display:inline-block;margin-right:5px;vertical-align:middle;}
+  .result-level{font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:.12em;color:var(--cream-dim);text-transform:uppercase;margin-bottom:6px}
+  .result-score{font-family:'Silkscreen',monospace;font-size:40px;color:var(--lime-hi);margin-bottom:8px;text-shadow:0 0 18px rgba(159,217,42,.3)}
+  .rank-title{font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:600;font-size:15px;color:var(--cream);letter-spacing:.02em;margin-bottom:2px}
+  .result-msg{font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:300;color:var(--cream-dim);font-size:13.5px;line-height:1.6;margin:12px auto 0;max-width:34ch}
+
+  .legend{display:flex;justify-content:center;gap:18px;margin:18px 0 0;font-size:11px;color:var(--cream-dim);font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif}
+  .legend i{width:10px;height:10px;border-radius:99px;display:inline-block;margin-right:5px;vertical-align:middle}
+
+  .review{margin-top:22px;text-align:left}
+  .review-head{
+    font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--cream-dim);margin-bottom:10px;
+  }
+  .review-item{
+    display:flex;align-items:center;gap:12px;
+    background:rgba(0,0,0,.22);border:1px solid rgba(224,83,58,.2);
+    border-radius:12px;padding:11px 13px;margin-bottom:8px;
+  }
+  .review-item .rth{font-family:'Sarabun',sans-serif;font-weight:600;font-size:30px;color:var(--cream);flex:0 0 auto;width:46px;text-align:center}
+  .review-item .rbody{flex:1;min-width:0}
+  .review-item .rname{font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;color:var(--cream);display:block}
+  .review-item .rclass{font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-size:12px;color:var(--cream-dim)}
+
+  .again-btn{
+    display:block;width:100%;margin-top:24px;
+    font-family:'Silkscreen',monospace;font-size:15px;letter-spacing:.08em;
+    color:var(--olive);background:var(--lime);border:none;border-radius:14px;
+    padding:18px;cursor:pointer;box-shadow:0 6px 20px rgba(159,217,42,.3);
+    transition:background .14s,transform .1s;
+  }
+  .again-btn:hover{background:var(--lime-hi);transform:translateY(-2px)}
+  .again-btn:active{transform:translateY(0)}
+  .again-btn:focus-visible{outline:3px solid var(--ring);outline-offset:3px}
+
+  /* ===== Buy me a coffee ===== */
+  .coffee-divider{display:flex;align-items:center;gap:10px;margin:18px 0 0}
+  .coffee-divider i{flex:1;height:1px;background:rgba(159,217,42,.14);display:block}
+  .coffee-divider span{
+    font-family:'Silkscreen',monospace;font-size:8px;letter-spacing:.14em;
+    color:var(--cream-dim);opacity:.6;text-transform:uppercase;
+  }
+  .coffee-btn{
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    width:100%;margin-top:14px;text-decoration:none;box-sizing:border-box;
+    font-family:'Prompt','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;font-weight:500;font-size:13px;
+    color:var(--lime-hi);background:rgba(159,217,42,.06);
+    border:1px solid rgba(159,217,42,.35);border-radius:14px;padding:14px;
+    transition:background .14s,transform .1s;
+  }
+  .coffee-btn .cup{font-size:17px;line-height:1}
+  .coffee-btn:active{transform:translateY(1px)}
+  .coffee-btn:focus-visible{outline:3px solid var(--ring);outline-offset:3px}
+  @media (hover:hover){
+    .coffee-btn:hover{background:rgba(159,217,42,.12);border-color:rgba(159,217,42,.5)}
+  }
+
+  footer{
+    margin-top:34px;text-align:center;
+    font-family:'Silkscreen',monospace;font-size:9px;letter-spacing:.06em;
+    color:var(--cream-dim);opacity:.7;line-height:1.8;
+  }
+  footer .made{
+    font-family:'Silkscreen',monospace;font-size:9px;letter-spacing:.04em;
+    color:var(--cream-dim);margin-bottom:14px;
+  }
+  .social{display:flex;justify-content:center;gap:14px;margin-bottom:10px}
+  .social a{
+    width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(159,217,42,.08);border:1px solid rgba(159,217,42,.22);
+    color:var(--lime);text-decoration:none;
+    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .social a:hover{transform:translateY(-2px);background:rgba(159,217,42,.16);box-shadow:0 6px 16px rgba(159,217,42,.22)}
+  .social a:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
+  .social a svg{width:21px;height:21px;display:block;pointer-events:none}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
 </style>
 </head>
 <body>
+<div class="embers" id="embers" aria-hidden="true"></div>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">Thai Consonant Class</div>
-    <h1>タイ語子音字クラス判定クイズ<br>(Loopless Font Challenge)</h1>
-  </header>
 
-  <div class="scorebar">
-    <span class="score-q">問題 <b id="qnum">1</b>/<span id="qtotal">20</span></span>
-    <span class="streak" id="streak">🔥 0</span>
-    <span class="score-correct">正解 <b id="correct">0</b></span>
-  </div>
+  <!-- ============ START SCREEN ============ -->
+  <section id="startScreen">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="11">
+            <path d="M16 76 V36 L33 58 L50 36 V76" stroke="#9FD92A"/>
+            <path d="M50 76 V36 L67 58 L84 36 V76" stroke="#cdeb5f"/>
+          </g>
+        </svg>
+      </div>
+      <div class="brand-name">Moonoi Monsoon</div>
+    </div>
+    <h1 class="title">THAI CONSONANT<br>CLASS</h1>
+    <p class="subtitle">ループレス書体の子音字を読んで、<br>クラスを当てよう。<b>高・中・低。</b></p>
 
-  <div class="card" id="quizCard">
-    <div class="prompt-label">この子音字のクラスは？</div>
-    <div class="glyph" id="glyph">ก</div>
+    <div class="px-rule" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+    <p class="quest-label">▸ ラウンドを選ぶ</p>
+
+    <div class="menu-card">
+      <div class="menu-label">▸ 問題数</div>
+      <div class="opt-row" id="lenOpts">
+        <button class="opt" data-group="len" data-val="10" aria-pressed="false">
+          <span class="cursor">▶</span>
+          <span class="opt-main">
+            <span class="opt-name">QUICK · 10</span>
+            <span class="opt-desc">ランダムに10問。さくっとウォームアップ。</span>
+          </span>
+        </button>
+        <button class="opt" data-group="len" data-val="20" aria-pressed="false">
+          <span class="cursor">▶</span>
+          <span class="opt-main">
+            <span class="opt-name">FULL · 20</span>
+            <span class="opt-desc">20問でじっくり腕試し。</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="startBtn" disabled>▸ スタート</button>
+
+    <div class="coffee-divider"><i></i><span>support this project</span><i></i></div>
+    <a class="coffee-btn" href="https://buymeacoffee.com/moonoimonsoon" target="_blank" rel="noopener">
+      <span class="cup">☕</span><span>Buy Me a Coffee</span>
+    </a>
+
+    <footer>
+      <div class="made">หมูน้อย · little pig · Moonoi Monsoon</div>
+      <div class="social">
+        <a href="https://www.instagram.com/moonoi_monsoon" target="_blank" rel="noopener noreferrer" aria-label="Moonoi Monsoon on Instagram">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5.4" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17.4" cy="6.6" r="1.4" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="https://moonoimonsoon.github.io" target="_blank" rel="noopener noreferrer" aria-label="Moonoi Monsoon hub site">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="currentColor" stroke-width="11">
+              <path d="M16 76 V36 L33 58 L50 36 V76"/>
+              <path d="M50 76 V36 L67 58 L84 36 V76"/>
+            </g>
+          </svg>
+        </a>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <section id="gameScreen" class="hidden">
+    <div class="game-header">
+      <svg class="hdr-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="12">
+          <path d="M16 76 V36 L33 58 L50 36 V76" stroke="#9FD92A"/>
+          <path d="M50 76 V36 L67 58 L84 36 V76" stroke="#cdeb5f"/>
+        </g>
+      </svg>
+      <span class="hdr-name">Moonoi Monsoon</span>
+      <span class="hdr-mode" id="modeTag">10</span>
+    </div>
+
+    <div class="statbar">
+      <div class="stat"><div class="k">Question</div><div class="v" id="qNum">1/10</div></div>
+      <div class="stat"><div class="k">Streak</div><div class="v" id="streak">0</div></div>
+      <div class="stat"><div class="k">Score</div><div class="v" id="score">0</div></div>
+    </div>
+    <div class="progress"><i id="progBar"></i></div>
+
+    <div class="qcard">
+      <div class="q-mode-tag">この子音字のクラスは？</div>
+      <div class="glyph" id="glyph" lang="th">ก</div>
+    </div>
+
     <div class="choices" id="choices">
-      <div class="choice" data-k="high"><span class="dot"></span>高子音字</div>
-      <div class="choice" data-k="mid"><span class="dot"></span>中子音字</div>
-      <div class="choice" data-k="low"><span class="dot"></span>低子音字</div>
+      <button class="choice" data-k="high"><span class="dot"></span>高子音字</button>
+      <button class="choice" data-k="mid"><span class="dot"></span>中子音字</button>
+      <button class="choice" data-k="low"><span class="dot"></span>低子音字</button>
     </div>
 
-    <div class="explain" id="explain"></div>
-    <button class="next" id="nextBtn">次の問題 →</button>
+    <div class="feedback hidden" id="feedback"></div>
 
-    <div class="progress"><span id="progbar"></span></div>
-  </div>
+    <button class="next-btn hidden" id="nextBtn">▸ NEXT</button>
+    <button class="quit-link" id="quitBtn">✕ メニューに戻る</button>
+  </section>
 
-  <div class="card result" id="result">
-    <div class="prompt-label">結果</div>
-    <div class="big" id="finalScore">0 / 20</div>
-    <p id="finalMsg"></p>
-    <div class="legend">
-      <span><i style="background:var(--high)"></i>高</span>
-      <span><i style="background:var(--mid)"></i>中</span>
-      <span><i style="background:var(--low)"></i>低</span>
+  <!-- ============ RESULTS SCREEN ============ -->
+  <section id="resultScreen" class="hidden">
+    <div class="result-card">
+      <div class="result-level px" id="resultLevel">10</div>
+      <div class="result-score px" id="resultScore">0/10</div>
+      <div class="rank-title" id="rankTitle">見習い</div>
+      <p class="result-msg" id="resultMsg"></p>
+
+      <div class="legend">
+        <span><i style="background:var(--high)"></i>高 · 11</span>
+        <span><i style="background:var(--mid)"></i>中 · 9</span>
+        <span><i style="background:var(--low)"></i>低 · 24</span>
+      </div>
+
+      <div class="review hidden" id="reviewWrap">
+        <div class="review-head">▸ もう一度見ておきたい字</div>
+        <div id="reviewList"></div>
+      </div>
+
+      <button class="again-btn" id="againBtn">▸ もう一度</button>
+
+      <div class="coffee-divider"><i></i><span>enjoyed it?</span><i></i></div>
+      <a class="coffee-btn" href="https://buymeacoffee.com/moonoimonsoon" target="_blank" rel="noopener">
+        <span class="cup">☕</span><span>Buy Me a Coffee</span>
+      </a>
+
+      <button class="quit-link" id="menuBtn">✕ メニューに戻る</button>
     </div>
-    <button class="restart" id="restartBtn">もう一度</button>
-  </div>
+    <footer>หมูน้อย · little pig · Moonoi Monsoon</footer>
+  </section>
+
 </div>
 
 <script>
 // タイ語子音字44文字。class: high(高) / mid(中) / low(低)
-// name: 文字の呼び名(タイ語)、read: 名前の読み、init: 頭子音音、memo: ひとことメモ
 const CONSONANTS = [
   {ch:"ก", cls:"mid",  name:"กอ ไก่",    read:"gɔɔ gài",    init:"g",  memo:"鶏（ガイ）"},
   {ch:"ข", cls:"high", name:"ขอ ไข่",    read:"khɔ̆ɔ khài",  init:"kh", memo:"卵（カイ）"},
@@ -238,110 +570,168 @@ const CONSONANTS = [
   {ch:"ฮ", cls:"low",  name:"ฮอ นกฮูก",  read:"hɔɔ nók-hûuk",init:"h",  memo:"フクロウ"}
 ];
 
-const CLASS_JP = {high:"高子音字", mid:"中子音字", low:"低子音字"};
-const CLASS_MEMO = {
+const CLASS_NAME = {high:"高子音字", mid:"中子音字", low:"低子音字"};
+const CLASS_NOTE = {
   high:"高子音字は 11 文字。อักษรสูง（アクソーン・スーン）。",
   mid:"中子音字は 9 文字。อักษรกลาง（アクソーン・グラーン）。",
   low:"低子音字は 24 文字で最多。อักษรต่ำ（アクソーン・タム）。"
 };
-const TOTAL = 10;
 
-let deck=[], idx=0, correct=0, streak=0, locked=false;
+const el = id => document.getElementById(id);
+const startScreen  = el('startScreen');
+const gameScreen   = el('gameScreen');
+const resultScreen = el('resultScreen');
 
-const $ = id => document.getElementById(id);
+let cfg = { len:null };
+let state = null;
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-function start(){
-  deck = shuffle(CONSONANTS).slice(0,TOTAL);
-  idx=0;correct=0;streak=0;
-  $("qtotal").textContent=TOTAL;
-  $("result").classList.remove("show");
-  $("quizCard").style.display="";
+function wireMenu(groupId, key){
+  el(groupId).addEventListener('click', e=>{
+    const btn = e.target.closest('.opt');
+    if(!btn) return;
+    el(groupId).querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed', String(b===btn)));
+    cfg[key] = btn.dataset.val;
+    refreshStart();
+  });
+}
+wireMenu('lenOpts','len');
+
+function refreshStart(){
+  const ready = !!cfg.len;
+  el('startBtn').disabled = !ready;
+  el('startBtn').innerHTML = ready
+    ? `▸ スタート &nbsp;║&nbsp; <span class="lvl-in-btn">${cfg.len}問</span>`
+    : '▸ スタート';
+}
+
+function show(scr){
+  [startScreen,gameScreen,resultScreen].forEach(s=>s.classList.add('hidden'));
+  scr.classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
+el('startBtn').addEventListener('click', startGame);
+
+function startGame(){
+  const total = parseInt(cfg.len,10);
+  state = { total, deck:shuffle(CONSONANTS).slice(0,total), idx:0, score:0, streak:0, misses:[], locked:false };
+  show(gameScreen);
+  el('modeTag').textContent = total;
   render();
 }
 
 function render(){
-  locked=false;
-  const item=deck[idx];
-  $("glyph").textContent=item.ch;
-  $("qnum").textContent=idx+1;
-  $("correct").textContent=correct;
-  $("streak").textContent="🔥 "+streak;
-  $("progbar").style.width=((idx)/TOTAL*100)+"%";
+  state.locked = false;
+  const item = state.deck[state.idx];
+  el('glyph').textContent = item.ch;
+  el('qNum').textContent = (state.idx+1)+'/'+state.total;
+  el('streak').textContent = state.streak;
+  el('score').textContent = state.score;
+  el('progBar').style.width = (state.idx/state.total*100)+'%';
 
-  const ch=$("choices");
-  ch.classList.remove("locked");
-  [...ch.children].forEach(c=>{c.className="choice";c.dataset.k=c.dataset.k;
-    // dotを復元
-    if(!c.querySelector(".dot")){const d=document.createElement("span");d.className="dot";c.prepend(d);}
-  });
-  $("explain").className="explain";
-  $("explain").innerHTML="";
-  $("nextBtn").className="next";
+  const choices = el('choices');
+  [...choices.children].forEach(c=>{ c.className='choice'; c.disabled=false; });
+  el('feedback').classList.add('hidden');
+  el('feedback').innerHTML='';
+  el('nextBtn').classList.add('hidden');
 }
 
-function choose(k, el){
-  if(locked) return;
-  locked=true;
-  const item=deck[idx];
+el('choices').addEventListener('click', e=>{
+  const btn = e.target.closest('.choice');
+  if(btn) choose(btn.dataset.k, btn);
+});
+
+function choose(k, btn){
+  if(state.locked) return;
+  state.locked = true;
+  const item = state.deck[state.idx];
   const right = item.cls;
   const ok = k===right;
-  if(ok){correct++;streak++;}else{streak=0;}
+  if(ok){ state.score++; state.streak++; }
+  else { state.streak=0; state.misses.push(item); }
 
-  const ch=$("choices");
-  ch.classList.add("locked");
-  [...ch.children].forEach(c=>{
-    if(c.dataset.k===right) c.classList.add("correct");
-    else if(c===el) c.classList.add("wrong");
-    else c.classList.add("dim");
+  [...el('choices').children].forEach(c=>{
+    c.disabled=true;
+    if(c.dataset.k===right) c.classList.add('correct');
+    else if(c===btn) c.classList.add('wrong');
+    else c.classList.add('dim');
   });
 
-  const ex=$("explain");
-  ex.innerHTML=`
-    <div class="verdict ${ok?'ok':'ng'}">${ok?'⭕ 正解！':'❌ 不正解'}</div>
-    <div class="ex-row"><span class="lbl">文字</span><span class="val th-inline" style="font-size:24px">${item.ch}</span></div>
-    <div class="ex-row"><span class="lbl">クラス</span><span class="val"><span class="tag ${item.cls}">${CLASS_JP[item.cls]}</span></span></div>
-    <div class="ex-row"><span class="lbl">呼び名</span><span class="val th-inline">${item.name}</span></div>
-    <div class="ex-row"><span class="lbl">読み方</span><span class="val">${item.read}</span></div>
-    <div class="ex-row"><span class="lbl">意味</span><span class="val">${item.memo}</span></div>
-    <div class="ex-row"><span class="lbl">頭子音</span><span class="val">${item.init}</span></div>
-    <div class="ex-row"><span class="lbl">メモ</span><span class="val" style="font-weight:400;color:#6b5f48">${CLASS_MEMO[item.cls]}</span></div>
+  el('score').textContent = state.score;
+  el('streak').textContent = state.streak;
+
+  const fb = el('feedback');
+  fb.innerHTML = `
+    <div class="fb-head ${ok?'ok':'no'}">${ok?'⭕ 正解':'❌ 不正解'}</div>
+    <div class="fb-row"><span class="lbl">文字</span><span class="val"><span class="glyph-sm th">${item.ch}</span></span></div>
+    <div class="fb-row"><span class="lbl">クラス</span><span class="val"><span class="tag ${item.cls}">${CLASS_NAME[item.cls]}</span></span></div>
+    <div class="fb-row"><span class="lbl">呼び名</span><span class="val"><span class="th">${item.name}</span></span></div>
+    <div class="fb-row"><span class="lbl">読み方</span><span class="val">${item.read}</span></div>
+    <div class="fb-row"><span class="lbl">意味</span><span class="val">${item.memo}</span></div>
+    <div class="fb-row"><span class="lbl">頭子音</span><span class="val">${item.init}</span></div>
+    <div class="fb-note">${CLASS_NOTE[item.cls]}</div>
   `;
-  ex.classList.add("show");
-  $("correct").textContent=correct;
-  $("streak").textContent="🔥 "+streak;
-  $("nextBtn").classList.add("show");
+  fb.classList.remove('hidden');
+
+  const btnN = el('nextBtn');
+  btnN.textContent = (state.idx+1>=state.total) ? '▸ 結果を見る' : '▸ 次へ';
+  btnN.classList.remove('hidden');
+  btnN.onclick = ()=>{ state.idx++; (state.idx>=state.total) ? showResults() : render(); };
 }
 
-function next(){
-  idx++;
-  if(idx>=TOTAL){ finish(); return; }
-  render();
+function showResults(){
+  show(resultScreen);
+  const s = state.score, t = state.total, pct = s/t;
+  el('resultLevel').textContent = t+'問';
+  el('resultScore').textContent = s+'/'+t;
+
+  let rank, msg;
+  if(pct===1){ rank='三クラスの達人'; msg='全問正解！ เก่งมาก（ゲン・マーク）。ループレスの字を完璧に仕分け。'; }
+  else if(pct>=0.8){ rank='クラス上級者'; msg='お見事。よく覚えています。'; }
+  else if(pct>=0.6){ rank='安定した読み手'; msg='いい調子。あと少し。'; }
+  else if(pct>=0.4){ rank='見習い'; msg='グループを復習しよう：高11・中9・低24。'; }
+  else { rank='初心者'; msg='コツ：まず中子音字9つから覚えよう。'; }
+  el('rankTitle').textContent = rank;
+  el('resultMsg').textContent = msg;
+
+  const wrap = el('reviewWrap'), list = el('reviewList');
+  list.innerHTML='';
+  if(state.misses.length){
+    wrap.classList.remove('hidden');
+    state.misses.forEach(item=>{
+      const d = document.createElement('div');
+      d.className='review-item';
+      d.innerHTML = `<span class="rth" lang="th">${item.ch}</span>
+        <span class="rbody"><span class="rname">${item.name}</span>
+        <span class="rclass">${CLASS_NAME[item.cls]} · ${item.read}</span></span>`;
+      list.appendChild(d);
+    });
+  } else {
+    wrap.classList.add('hidden');
+  }
 }
 
-function finish(){
-  $("quizCard").style.display="none";
-  $("result").classList.add("show");
-  $("finalScore").textContent=`${correct} / ${TOTAL}`;
-  const pct=correct/TOTAL;
-  let msg;
-  if(pct===1) msg="完璧！เก่งมาก（ゲン・マーク＝すごい）！";
-  else if(pct>=0.8) msg="お見事。かなり身についています。";
-  else if(pct>=0.6) msg="いい調子。あと少しで定着します。";
-  else if(pct>=0.4) msg="高11・中9・低24をもう一度おさらいしましょう。";
-  else msg="まずは中子音字9文字から覚えるのがおすすめです。";
-  $("finalMsg").textContent=msg;
-}
+el('againBtn').addEventListener('click', startGame);
+el('menuBtn').addEventListener('click', ()=>show(startScreen));
+el('quitBtn').addEventListener('click', ()=>show(startScreen));
 
-$("choices").addEventListener("click",e=>{
-  const c=e.target.closest(".choice");
-  if(c) choose(c.dataset.k,c);
-});
-$("nextBtn").addEventListener("click",next);
-$("restartBtn").addEventListener("click",start);
-
-start();
+// embers
+(function(){
+  const box = el('embers');
+  if(!box) return;
+  const N = 18;
+  for(let i=0;i<N;i++){
+    const e = document.createElement('div');
+    e.className = 'ember' + (Math.random()<.4?' spark':'');
+    e.style.left = (Math.random()*100)+'%';
+    e.style.setProperty('--drift', (Math.random()*40-20)+'px');
+    e.style.animationDuration = (5+Math.random()*6)+'s';
+    e.style.animationDelay = (-Math.random()*10)+'s';
+    box.appendChild(e);
+  }
+})();
 </script>
 </body>
 </html>
